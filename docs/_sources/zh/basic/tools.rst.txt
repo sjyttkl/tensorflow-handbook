@@ -75,7 +75,7 @@ TensorFlow常用模块
     checkpoint.restore(tf.train.latest_checkpoint('./save'))    # 从文件恢复模型参数
     # 模型使用代码
 
-.. note:: ``tf.train.Checkpoint`` 与以前版本常用的 ``tf.train.Saver`` 相比，强大之处在于其支持在Eager Execution下“延迟”恢复变量。具体而言，当调用了 ``checkpoint.restore()`` ，但模型中的变量还没有被建立的时候，Checkpoint可以等到变量被建立的时候再进行数值的恢复。Eager Execution下，模型中各个层的初始化和变量的建立是在模型第一次被调用的时候才进行的（好处在于可以根据输入的张量形状而自动确定变量形状，无需手动指定）。这意味着当模型刚刚被实例化的时候，其实里面还一个变量都没有，这时候使用以往的方式去恢复变量数值是一定会报错的。比如，你可以试试在train.py调用 ``tf.keras.Model`` 的 ``save_weight()`` 方法保存model的参数，并在test.py中实例化model后立即调用 ``load_weight()`` 方法，就会出错，只有当调用了一遍model之后再运行 ``load_weight()`` 方法才能得到正确的结果。可见， ``tf.train.Checkpoint`` 在这种情况下可以给我们带来相当大的便利。另外， ``tf.train.Checkpoint`` 同时也支持Graph Execution模式。
+.. note:: ``tf.train.Checkpoint`` 与以前版本常用的 ``tf.train.Saver`` 相比，强大之处在于其支持在即时执行模式下“延迟”恢复变量。具体而言，当调用了 ``checkpoint.restore()`` ，但模型中的变量还没有被建立的时候，Checkpoint可以等到变量被建立的时候再进行数值的恢复。即时执行模式下，模型中各个层的初始化和变量的建立是在模型第一次被调用的时候才进行的（好处在于可以根据输入的张量形状而自动确定变量形状，无需手动指定）。这意味着当模型刚刚被实例化的时候，其实里面还一个变量都没有，这时候使用以往的方式去恢复变量数值是一定会报错的。比如，你可以试试在train.py调用 ``tf.keras.Model`` 的 ``save_weight()`` 方法保存model的参数，并在test.py中实例化model后立即调用 ``load_weight()`` 方法，就会出错，只有当调用了一遍model之后再运行 ``load_weight()`` 方法才能得到正确的结果。可见， ``tf.train.Checkpoint`` 在这种情况下可以给我们带来相当大的便利。另外， ``tf.train.Checkpoint`` 同时也支持图执行模式。
 
 最后提供一个实例，以前章的 :ref:`多层感知机模型 <mlp>` 为例展示模型变量的保存和载入：
 
@@ -115,6 +115,9 @@ TensorBoard：训练过程可视化
 
 有时，你希望查看模型训练过程中各个参数的变化情况（例如损失函数loss的值）。虽然可以通过命令行输出来查看，但有时显得不够直观。而TensorBoard就是一个能够帮助我们将训练过程可视化的工具。
 
+实时查看参数变化情况
+-------------------------------------------
+
 首先在代码目录下建立一个文件夹（如 ``./tensorboard`` ）存放TensorBoard的记录文件，并在代码中实例化一个记录器：
 
 .. code-block:: python
@@ -152,10 +155,37 @@ TensorBoard的使用有以下注意事项：
 * 如果需要重新训练，需要删除掉记录文件夹内的信息并重启TensorBoard（或者建立一个新的记录文件夹并开启TensorBoard， ``--logdir`` 参数设置为新建立的文件夹）；
 * 记录文件夹目录保持全英文。
 
+.. _graph_profile:
+
+查看Graph和Profile信息
+-------------------------------------------
+
+除此以外，我们可以在训练时使用 ``tf.summary.trace_on`` 开启Trace，此时TensorFlow会将训练时的大量信息（如计算图的结构，每个操作所耗费的时间等）记录下来。在训练完成后，使用 ``tf.summary.trace_export`` 将记录结果输出到文件。
+
+.. code-block:: python
+
+    tf.summary.trace_on(graph=True, profiler=True)  # 开启Trace，可以记录图结构和profile信息
+    # 进行训练
+    with summary_writer.as_default():
+        tf.summary.trace_export(name="model_trace", step=0, profiler_outdir=log_dir)    # 保存Trace信息到文件
+
+之后，我们就可以在TensorBoard中选择“Profile”，以时间轴的方式查看各操作的耗时情况。如果使用了 :ref:`tf.function <tffunction>` 建立了计算图，也可以点击“Graphs”查看图结构。
+
+.. figure:: /_static/image/tools/profiling.png
+    :width: 100%
+    :align: center
+
+.. figure:: /_static/image/tools/graph.png
+    :width: 100%
+    :align: center
+
+实例：查看多层感知机模型的训练情况
+-------------------------------------------
+
 最后提供一个实例，以前章的 :ref:`多层感知机模型 <mlp>` 为例展示TensorBoard的使用：
 
 .. literalinclude:: /_static/code/zh/tools/tensorboard/mnist.py
-    :emphasize-lines: 11, 19-20
+    :emphasize-lines: 12-13, 21-22, 25-26
 
 .. _tfdata:
 
@@ -209,6 +239,8 @@ TensorBoard的使用有以下注意事项：
 
     即可快速载入MNIST数据集。
 
+对于特别巨大而无法完整载入内存的数据集，我们可以先将数据集处理为 TFRecord 格式，然后使用 ``tf.data.TFRocrdDataset()`` 进行载入。详情请参考 :ref:`后节 <tfrecord>`：
+
 数据集对象的预处理
 -------------------------------------------
 
@@ -216,10 +248,9 @@ TensorBoard的使用有以下注意事项：
 
 - ``Dataset.map(f)`` ：对数据集中的每个元素应用函数 ``f`` ，得到一个新的数据集（这部分往往结合 ``tf.io`` 进行读写和解码文件， ``tf.image`` 进行图像处理）；
 - ``Dataset.shuffle(buffer_size)`` ：将数据集打乱（设定一个固定大小的缓冲区（Buffer），取出前 ``buffer_size`` 个元素放入，并从缓冲区中随机采样，采样后的数据用后续数据替换）；
-- ``Dataset.batch(batch_size)`` ：将数据集分成批次，即对每 ``batch_size`` 个元素，使用 ``tf.stack()`` 在第0维合并，成为一个元素。
-- ``Dataset.prefetch()`` ：预取出数据集中的若干个元素
+- ``Dataset.batch(batch_size)`` ：将数据集分成批次，即对每 ``batch_size`` 个元素，使用 ``tf.stack()`` 在第0维合并，成为一个元素；
 
-除此以外，还有 ``Dataset.repeat()`` （重复数据集的元素）、 ``Dataset.reduce()`` （与Map相对的聚合操作）、 ``Dataset.take()``（）等，可参考 `API文档 <https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/data/Dataset>`_ 进一步了解。
+除此以外，还有 ``Dataset.repeat()`` （重复数据集的元素）、 ``Dataset.reduce()`` （与Map相对的聚合操作）、 ``Dataset.take()`` （截取数据集中的前若干个元素）等，可参考 `API文档 <https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/data/Dataset>`_ 进一步了解。
 
 以下以MNIST数据集进行示例。
 
@@ -282,6 +313,56 @@ TensorBoard的使用有以下注意事项：
     - 当 ``buffer_size`` 设置为1时，其实等价于没有进行任何打散；
     - 当数据集的标签顺序分布极为不均匀（例如二元分类时数据集前N个的标签为0，后N个的标签为1）时，较小的缓冲区大小会使得训练时取出的Batch数据很可能全为同一标签，从而影响训练效果。一般而言，数据集的顺序分布若较为随机，则缓冲区的大小可较小，否则则需要设置较大的缓冲区。
 
+.. _prefetch:
+
+使用 ``tf.data`` 的并行化策略提高训练流程效率
+--------------------------------------------------------------------------------------
+
+..
+    https://www.tensorflow.org/guide/data_performance
+
+当训练模型时，我们希望充分利用计算资源，减少CPU/GPU的空载时间。然而有时，数据集的准备处理非常耗时，使得我们在每进行一次训练前都需要花费大量的时间准备待训练的数据，而此时GPU只能空载而等待数据，造成了计算资源的浪费，如下图所示：
+
+.. figure:: /_static/image/tools/datasets_without_pipelining.png
+    :width: 100%
+    :align: center
+
+    常规训练流程，在准备数据时，GPU只能空载。`1图示来源 <https://www.tensorflow.org/guide/data_performance>`_ 。
+
+此时， ``tf.data`` 的数据集对象为我们提供了 ``Dataset.prefetch()`` 方法，使得我们可以让数据集对象 ``Dataset`` 在训练时预取出若干个元素，使得在GPU训练的同时CPU可以准备数据，从而提升训练流程的效率，如下图所示：
+
+.. figure:: /_static/image/tools/datasets_with_pipelining.png
+    :width: 100%
+    :align: center
+    
+    使用 ``Dataset.prefetch()`` 方法进行数据预加载后的训练流程，在GPU进行训练的同时CPU进行数据预加载，提高了训练效率。 `2图示来源  <https://www.tensorflow.org/guide/data_performance>`_ 。
+
+``Dataset.prefetch()`` 的使用方法和前节的 ``Dataset.batch()`` 、 ``Dataset.shuffle()`` 等非常类似。继续以前节的MNIST数据集为例，若希望开启预加载数据，使用如下代码即可：
+
+.. code-block:: python
+
+    mnist_dataset = mnist_dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+
+此处参数 ``buffer_size`` 既可手工设置，也可设置为 ``tf.data.experimental.AUTOTUNE`` 从而由TensorFlow自动选择合适的数值。
+
+与此类似， ``Dataset.map()`` 也可以利用多GPU资源，并行化地对数据项进行变换，从而提高效率。以前节的MNIST数据集为例，假设用于训练的计算机具有2核的CPU，我们希望充分利用多核心的优势对数据进行并行化变换（比如前节的旋转90度函数 ``rot90`` ），可以使用以下代码：
+
+.. code-block:: python
+
+    mnist_dataset = mnist_dataset.map(map_func=rot90, num_parallel_calls=2)
+
+其运行过程如下图所示：
+
+.. figure:: /_static/image/tools/datasets_parallel_map.png
+    :width: 100%
+    :align: center
+
+    通过设置 ``Dataset.map()`` 的 ``num_parallel_calls`` 参数实现数据转换的并行化。上部分是未并行化的图示，下部分是2核并行的图示。 `3图示来源  <https://www.tensorflow.org/guide/data_performance>`_ 。
+
+当然，这里同样可以将 ``num_parallel_calls`` 设置为 ``tf.data.experimental.AUTOTUNE`` 以让TensorFlow自动选择合适的数值。
+
+除此以外，还有很多提升数据集处理性能的方式，可参考 `TensorFlow文档 <https://www.tensorflow.org/guide/data_performance>`_ 进一步了解。后文的实例中展示了tf.data并行化策略的强大性能，可 :ref:`点此 <tfdata_performance>` 查看。
+
 数据集元素的获取与使用
 -------------------------------------------
 构建好数据并预处理后，我们需要从其中迭代获取数据以用于训练。``tf.data.Dataset`` 是一个Python的可迭代对象，因此可以使用For循环迭代获取数据，即：
@@ -320,23 +401,124 @@ Keras支持使用 ``tf.data.Dataset`` 直接作为输入。当调用 ``tf.keras.
 实例：cats_vs_dogs图像分类
 -------------------------------------------
 
-以下代码以猫狗图片二分类任务为示例，展示了使用 ``tf.data`` 结合 ``tf.io`` 和 ``tf.image`` 建立 ``tf.data.Dataset`` 数据集，并进行训练和测试的完整过程。数据集可至 `这里 <https://www.floydhub.com/fastai/datasets/cats-vs-dogs>`_ 下载。
+以下代码以猫狗图片二分类任务为示例，展示了使用 ``tf.data`` 结合 ``tf.io`` 和 ``tf.image`` 建立 ``tf.data.Dataset`` 数据集，并进行训练和测试的完整过程。数据集可至 `这里 <https://www.floydhub.com/fastai/datasets/cats-vs-dogs>`_ 下载。使用前须将数据集解压到代码中 ``data_dir`` 所设置的目录（此处默认设置为 ``C:/datasets/cats_vs_dogs`` ，可根据自己的需求进行修改）。
 
 .. literalinclude:: /_static/code/zh/tools/tfdata/cats_vs_dogs.py
-    :lines: 1-51
-    :emphasize-lines: 14-17, 29-33, 51
+    :lines: 1-54
+    :emphasize-lines: 13-17, 29-36, 54
 
 使用以下代码进行测试：
 
 .. literalinclude:: /_static/code/zh/tools/tfdata/cats_vs_dogs.py
-    :lines: 53-67
+    :lines: 56-70
+
+.. _tfdata_performance:
+
+通过对以上示例进行性能测试，我们可以感受到 ``tf.data`` 的强大并行化性能。通过 ``prefetch()`` 的使用和在 ``map()`` 过程中加入 ``num_parallel_calls`` 参数，模型训练的时间可缩减至原来的一半甚至更低。测试结果如下：
+
+.. figure:: /_static/image/tools/tfdata_performance.jpg
+    :width: 100%
+    :align: center
+
+    tf.data 的并行化策略性能测试（纵轴为每epoch训练所需时间，单位：秒）
+
+.. _tfrecord:
+
+TFRecord ：TensorFlow数据集存储格式
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..
+    https://www.tensorflow.org/tutorials/load_data/tfrecord
+
+TFRecord 是TensorFlow 中的数据集存储格式。当我们将数据集整理成 TFRecord 格式后，TensorFlow就可以高效地读取和处理这些数据集，从而帮助我们更高效地进行大规模的模型训练。
+
+TFRecord可以理解为一系列序列化的 ``tf.train.Example`` 元素所组成的列表文件，而每一个 ``tf.train.Example`` 又由若干个 ``tf.train.Feature`` 的字典组成。形式如下：
+
+::
+
+    # dataset.tfrecords
+    [
+        {   # example 1 (tf.train.Example)
+            'feature_1': tf.train.Feature,
+            ...
+            'feature_k': tf.train.Feature
+        },
+        ...
+        {   # example N (tf.train.Example)
+            'feature_1': tf.train.Feature,
+            ...
+            'feature_k': tf.train.Feature
+        }
+    ]
+
+
+为了将形式各样的数据集整理为 TFRecord 格式，我们可以对数据集中的每个元素进行以下步骤：
+
+- 读取该数据元素到内存；
+- 将该元素转换为 ``tf.train.Example`` 对象（每一个 ``tf.train.Example`` 由若干个 ``tf.train.Feature`` 的字典组成，因此需要先建立Feature的字典）；
+- 将该 ``tf.train.Example`` 对象序列化为字符串，并通过一个预先定义的 ``tf.io.TFRecordWriter`` 写入 TFRecord 文件。
+
+而读取 TFRecord 数据则可按照以下步骤：
+
+- 通过 ``tf.data.TFRecordDataset`` 读入原始的 TFRecord 文件（此时文件中的 ``tf.train.Example`` 对象尚未被反序列化），获得一个 ``tf.data.Dataset`` 数据集对象；
+- 通过 ``Dataset.map`` 方法，对该数据集对象中的每一个序列化的 ``tf.train.Example`` 字符串执行 ``tf.io.parse_single_example`` 函数，从而实现反序列化。
+
+以下我们通过一个实例，展示将 :ref:`上一节 <cats_vs_dogs>` 中使用的cats_vs_dogs二分类数据集的训练集部分转换为TFRecord文件，并读取该文件的过程。
+
+将数据集存储为 TFRecord 文件
+-------------------------------------------
+
+首先，与 :ref:`上一节 <cats_vs_dogs>` 类似，我们进行一些准备工作，`下载数据集 <https://www.floydhub.com/fastai/datasets/cats-vs-dogs>`_ 并解压到 ``data_dir`` ，初始化数据集的图片文件名列表及标签。
+
+.. literalinclude:: /_static/code/zh/tools/tfrecord/cats_vs_dogs.py
+    :lines: 1-12
+
+然后，通过以下代码，迭代读取每张图片，建立 ``tf.train.Feature`` 字典和 ``tf.train.Example`` 对象，序列化并写入TFRecord文件。
+
+.. literalinclude:: /_static/code/zh/tools/tfrecord/cats_vs_dogs.py
+    :lines: 14-22
+
+值得注意的是， ``tf.train.Feature`` 支持三种数据格式：
+
+- ``tf.train.BytesList`` ：字符串或原始Byte文件（如图片），通过 ``bytes_list`` 参数传入一个由字符串数组初始化的 ``tf.train.BytesList`` 对象；
+- ``tf.train.FloatList`` ：浮点数，通过 ``float_list`` 参数传入一个由浮点数数组初始化的 ``tf.train.FloatList`` 对象；
+- ``tf.train.Int64List`` ：整数，通过 ``int64_list`` 参数传入一个由整数数组初始化的 ``tf.train.Int64List`` 对象。
+
+如果只希望保存一个元素而非数组，传入一个只有一个元素的数组即可。
+
+运行以上代码，不出片刻，我们即可在 ``tfrecord_file`` 所指向的文件地址获得一个 500MB 左右的 ``train.tfrecords`` 文件。
+
+读取 TFRecord 文件
+-------------------------------------------
+
+我们可以通过以下代码，读取之间建立的 ``train.tfrecords`` 文件，并通过 ``Dataset.map`` 方法，使用 ``tf.io.parse_single_example`` 函数对数据集中的每一个序列化的 ``tf.train.Example`` 对象解码。
+
+.. literalinclude:: /_static/code/zh/tools/tfrecord/cats_vs_dogs.py
+    :lines: 24-36
+
+这里的 ``feature_description`` 类似于一个数据集的“描述文件”，通过一个由键值对组成的字典，告知 ``tf.io.parse_single_example`` 函数每个 ``tf.train.Example`` 数据项有哪些Feature，以及这些Feature的类型、形状等属性。 ``tf.io.FixedLenFeature`` 的三个输入参数 ``shape`` 、 ``dtype`` 和 ``default_value`` （可省略）为每个Feature的形状、类型和默认值。这里我们的数据项都是单个的数值或者字符串，所以 ``shape`` 为空数组。
+
+运行以上代码后，我们获得一个数据集对象 ``dataset`` ，这已经是一个可以用于训练的 ``tf.data.Dataset`` 对象了！我们从该数据集中读取元素并输出验证：
+
+.. literalinclude:: /_static/code/zh/tools/tfrecord/cats_vs_dogs.py
+    :lines: 38-43
+
+显示：
+
+.. figure:: /_static/image/tools/tfrecord_cat.png
+    :width: 60%
+    :align: center
+
+可见图片和标签都正确显示，数据集构建成功。
 
 .. _tffunction:
 
-``@tf.function`` ：Graph Execution模式 *
+``tf.function`` ：图执行模式 *
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``@tf.function`` 基础使用方法
+虽然默认的即时执行模式（Eager Execution）为我们带来了灵活及易调试的特性，但在特定的场合，例如追求高性能或部署模型时，我们依然希望使用 TensorFlow 1.X 中默认的图执行模式（Graph Execution），将模型转换为高效的 TensorFlow 图模型。此时，TensorFlow 2 为我们提供了 ``tf.function`` 模块，结合 AutoGraph 机制，使得我们仅需加入一个简单的 ``@tf.function`` 修饰符，就能轻松将模型以图执行模式运行。
+
+``tf.function`` 基础使用方法
 -------------------------------------------
 
 ..
@@ -347,25 +529,25 @@ Keras支持使用 ``tf.data.Dataset`` 直接作为输入。当调用 ``tf.keras.
     https://pgaleone.eu/tensorflow/tf.function/2019/04/03/dissecting-tf-function-part-2/
     https://pgaleone.eu/tensorflow/tf.function/2019/05/10/dissecting-tf-function-part-3/
 
-在TensorFlow 2.0中，推荐使用 ``@tf.function`` （而非1.X中的 ``tf.Session`` ）实现Graph Execution，从而将模型转换为易于部署且高性能的TensorFlow图模型。只需要将我们希望以Graph Execution模式运行的代码封装在一个函数内，并在函数前加上 ``@tf.function`` 即可，如下例所示。关于TensorFlow 1.X版本中的Graph Execution可参考 :doc:`附录 <../appendix/static>` 。
+在 TensorFlow 2 中，推荐使用 ``tf.function`` （而非1.X中的 ``tf.Session`` ）实现图执行模式，从而将模型转换为易于部署且高性能的TensorFlow图模型。只需要将我们希望以图执行模式运行的代码封装在一个函数内，并在函数前加上 ``@tf.function`` 即可，如下例所示。关于图执行模式的深入探讨可参考 :doc:`附录 <../appendix/static>` 。
 
-.. warning:: 并不是任何函数都可以被 ``@tf.function`` 修饰！``@tf.function`` 使用静态编译将函数内的代码转换成计算图，因此对函数内可使用的语句有一定限制（仅支持Python语言的一个子集），且需要函数内的操作本身能够被构建为计算图。建议在函数内只使用TensorFlow的原生操作，不要使用过于复杂的Python语句，函数参数只包括TensorFlow张量或NumPy数组，并最好是能够按照计算图的思想去构建函数（换言之，``@tf.function`` 只是给了你一种更方便的写计算图的方法，而不是一颗能给任何函数加速的 `银子弹 <https://en.wikipedia.org/wiki/No_Silver_Bullet>`_ ）。详细内容可参考 `AutoGraph Capabilities and Limitations <https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/autograph/g3doc/reference/limitations.md>`_ 。
+.. warning:: 并不是任何函数都可以被 ``@tf.function`` 修饰！``@tf.function`` 使用静态编译将函数内的代码转换成计算图，因此对函数内可使用的语句有一定限制（仅支持Python语言的一个子集），且需要函数内的操作本身能够被构建为计算图。建议在函数内只使用TensorFlow的原生操作，不要使用过于复杂的Python语句，函数参数只包括TensorFlow张量或NumPy数组，并最好是能够按照计算图的思想去构建函数（换言之，``@tf.function`` 只是给了你一种更方便的写计算图的方法，而不是一颗能给任何函数加速的 `银子弹 <https://en.wikipedia.org/wiki/No_Silver_Bullet>`_ ）。详细内容可参考 `AutoGraph Capabilities and Limitations <https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/autograph/g3doc/reference/limitations.md>`_ 。建议配合 :doc:`附录 <../appendix/static>` 一同阅读本节以获得较深入的理解。
 
 .. literalinclude:: /_static/code/zh/model/autograph/main.py
     :emphasize-lines: 11, 18
 
-运行400个Batch进行测试，加入 ``@tf.function`` 的程序耗时35.5秒，未加入 ``@tf.function`` 的纯Eager Execution程序耗时43.8秒。可见 ``@tf.function`` 带来了一定的性能提升。一般而言，当模型由较多小的操作组成的时候， ``@tf.function`` 带来的提升效果较大。而当模型的操作数量较少，但单一操作均很耗时的时候，则 ``@tf.function`` 带来的性能提升不会太大。
+运行400个Batch进行测试，加入 ``@tf.function`` 的程序耗时35.5秒，未加入 ``@tf.function`` 的纯即时执行模式程序耗时43.8秒。可见 ``@tf.function`` 带来了一定的性能提升。一般而言，当模型由较多小的操作组成的时候， ``@tf.function`` 带来的提升效果较大。而当模型的操作数量较少，但单一操作均很耗时的时候，则 ``@tf.function`` 带来的性能提升不会太大。
 
 ..
     https://www.tensorflow.org/beta/guide/autograph
     Functions can be faster than eager code, for graphs with many small ops. But for graphs with a few expensive ops (like convolutions), you may not see much speedup.
 
-``@tf.function`` 内在机制
+``tf.function`` 内在机制
 -------------------------------------------
 
 当被 ``@tf.function`` 修饰的函数第一次被调用的时候，进行以下操作：
 
-- 在Eager Execution模式关闭的环境下，函数内的代码依次运行。也就是说，每个 ``tf.`` 方法都只是定义了计算节点，而并没有进行任何实质的计算。这与TensorFlow 1.X的Graph Execution是一致的；
+- 在即时执行模式关闭的环境下，函数内的代码依次运行。也就是说，每个 ``tf.`` 方法都只是定义了计算节点，而并没有进行任何实质的计算。这与TensorFlow 1.X的图执行模式是一致的；
 - 使用AutoGraph将函数中的Python控制流语句转换成TensorFlow计算图中的对应节点（比如说 ``while`` 和 ``for`` 语句转换为 ``tf.while`` ， ``if`` 语句转换为 ``tf.cond`` 等等；
 - 基于上面的两步，建立函数内代码的计算图表示（为了保证图的计算顺序，图中还会自动加入一些 ``tf.control_dependencies`` 节点）；
 - 运行一次这个计算图；
@@ -373,9 +555,18 @@ Keras支持使用 ``tf.data.Dataset`` 直接作为输入。当调用 ``tf.keras.
 
 在被 ``@tf.function`` 修饰的函数之后再次被调用的时候，根据函数名和输入的函数参数的类型计算哈希值，检查哈希表中是否已经有了对应计算图的缓存。如果是，则直接使用已缓存的计算图，否则重新按上述步骤建立计算图。
 
+.. hint:: 对于熟悉 TensorFlow 1.X 的开发者，如果想要直接获得 ``tf.function`` 所生成的计算图以进行进一步处理和调试，可以使用被修饰函数的 ``get_concrete_function`` 方法。该方法接受的参数与被修饰函数相同。例如，为了获取前节被 ``@tf.function`` 修饰的函数 ``train_one_step`` 所生成的计算图，可以使用以下代码：
+
+    .. code-block:: python
+
+        graph = train_one_step.get_concrete_function(X, y)
+
+    其中 ``graph`` 即为一个 ``tf.Graph`` 对象。
+
 以下是一个测试题：
 
 .. literalinclude:: /_static/code/zh/model/autograph/quiz.py
+    :lines: 1-18
 
 思考一下，上面这段程序的结果是什么？
 
@@ -387,17 +578,7 @@ Keras支持使用 ``tf.data.Dataset`` 直接作为输入。当调用 ``tf.keras.
     2
     The function is running in Python
     0.1
-    0.2
-    The function is running in Python
-    1
-    The function is running in Python
-    2
-    1
-    The function is running in Python
-    0.1
-    The function is running in Python
-    0.2
-    0.1
+    0.2    
 
 当计算 ``f(a)`` 时，由于是第一次调用该函数，TensorFlow进行了以下操作：
 
@@ -411,7 +592,25 @@ Keras支持使用 ``tf.data.Dataset`` 直接作为输入。当调用 ``tf.keras.
 
 计算 ``f(d)`` 时，由于 ``d`` 和 ``c`` 的类型相同，所以TensorFlow复用了计算图，同理没有输出文本。
 
-之后的计算结果则显示出 ``@tf.function`` 对Python内置的整数和浮点数类型的处理方式。简而言之，只有当值完全一致的时候， ``@tf.function`` 才会复用之前建立的计算图，而并不会自动将Python内置的整数或浮点数等转换成张量。因此，当函数参数包含Python内置整数或浮点数时，需要额外小心。一般而言，应当只在指定超参数等少数场合使用Python内置类型作为被 ``@tf.function`` 修饰的函数的参数。
+而对于 ``@tf.function`` 对Python内置的整数和浮点数类型的处理方式，我们通过以下示例展现：
+
+.. literalinclude:: /_static/code/zh/model/autograph/quiz.py
+    :lines: 18-24
+
+结果为::
+
+    The function is running in Python
+    1
+    The function is running in Python
+    2
+    1
+    The function is running in Python
+    0.1
+    The function is running in Python
+    0.2
+    0.1
+
+简而言之，对于Python内置的整数和浮点数类型，只有当值完全一致的时候， ``@tf.function`` 才会复用之前建立的计算图，而并不会自动将Python内置的整数或浮点数等转换成张量。因此，当函数参数包含Python内置整数或浮点数时，需要格外小心。一般而言，应当只在指定超参数等少数场合使用Python内置类型作为被 ``@tf.function`` 修饰的函数的参数。
 
 ..
     https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/function
@@ -485,7 +684,7 @@ AutoGraph：将Python控制流转换为TensorFlow计算图
 使用传统的 ``tf.Session`` 
 ------------------------------------------- 
 
-不过，如果你依然钟情于TensorFlow传统的Graph Execution模式也没有问题。TensorFlow 2.0提供了 ``tf.compat.v1`` 模块以支持TensorFlow 1.X版本的API。同时，只要在编写模型的时候稍加注意，Keras的模型是可以同时兼容Eager Execution模式和Graph Execution模式的。注意，在Graph Execution模式下， ``model(input_tensor)`` 只需运行一次以完成图的建立操作。
+不过，如果你依然钟情于TensorFlow传统的图执行模式也没有问题。TensorFlow 2 提供了 ``tf.compat.v1`` 模块以支持TensorFlow 1.X版本的API。同时，只要在编写模型的时候稍加注意，Keras的模型是可以同时兼容即时执行模式和图执行模式的。注意，在图执行模式下， ``model(input_tensor)`` 只需运行一次以完成图的建立操作。
 
 例如，通过以下代码，同样可以在MNIST数据集上训练前面所建立的MLP或CNN模型：
 
@@ -493,18 +692,38 @@ AutoGraph：将Python控制流转换为TensorFlow计算图
     :lines: 112-136
 
 
-关于Graph Execution的更多内容可参见 :doc:`/zh/appendix/static`。
+关于图执行模式的更多内容可参见 :doc:`/zh/appendix/static`。
 
 ``tf.TensorArray`` ：TensorFlow 动态数组 *
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-在部分网络结构，尤其是涉及到时间序列的结构中，我们可能需要将一系列张量以数组的方式依次存放起来，以供进一步处理。当然，在Eager Execution下，你可以直接使用一个Python列表（List）存放数组。不过，如果你需要基于计算图的特性（例如使用 ``@tf.function`` 加速模型运行或者使用SavedModel导出模型），就无法使用这种方式了。因此，TensorFlow提供了 ``tf.TensorArray`` ，一种支持计算图特性的TensorFlow动态数组。
+..
+    https://www.tensorflow.org/api_docs/python/tf/TensorArray
 
-由于需要支持计算图， ``tf.TensorArray`` 的使用方式和一般编程语言中的列表/数组类型略有不同，包括4个方法：
+在部分网络结构，尤其是涉及到时间序列的结构中，我们可能需要将一系列张量以数组的方式依次存放起来，以供进一步处理。当然，在即时执行模式下，你可以直接使用一个Python列表（List）存放数组。不过，如果你需要基于计算图的特性（例如使用 ``@tf.function`` 加速模型运行或者使用SavedModel导出模型），就无法使用这种方式了。因此，TensorFlow提供了 ``tf.TensorArray`` ，一种支持计算图特性的TensorFlow动态数组。
 
-- 
+其声明的方式为：
 
-# TODO
+- ``arr = tf.TensorArray(dtype, size, dynamic_size=False)`` ：声明一个大小为 ``size`` ，类型为 ``dtype`` 的TensorArray ``arr`` 。如果将 ``dynamic_size`` 参数设置为 ``True`` ，则该数组会自动增长空间。
+
+其读取和写入的方法为：
+
+- ``write(index, value)`` ：将 ``value`` 写入数组的第 ``index`` 个位置；
+- ``read(index)`` ：读取数组的第 ``index`` 个值；
+
+除此以外，TensorArray还包括 ``stack()`` 、 ``unstack()`` 等常用操作，可参考 `文档 <https://www.tensorflow.org/api_docs/python/tf/TensorArray>`_ 以了解详情。
+
+请注意，由于需要支持计算图， ``tf.TensorArray`` 的 ``write()`` 方法是不可以忽略左值的！也就是说，在图执行模式下，必须按照以下的形式写入数组：
+
+.. code-block:: python
+
+    arr = arr.write(index, value)
+
+这样才可以正常生成一个计算图操作，并将该操作返回给 ``arr`` 。而不可以写成：
+
+.. code-block:: python
+
+    arr.write(index, value)     # 生成的计算图操作没有左值接收，从而丢失
 
 一个简单的示例如下：
 
@@ -581,7 +800,7 @@ AutoGraph：将Python控制流转换为TensorFlow计算图
 
     gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
     for gpu in gpus:
-        tf.config.experimental.set_memory_growth(device=gpu, True)
+        tf.config.experimental.set_memory_growth(device=gpu, enable=True)
 
 以下代码通过 ``tf.config.experimental.set_virtual_device_configuration`` 选项并传入 ``tf.config.experimental.VirtualDeviceConfiguration`` 实例，设置TensorFlow固定消耗 ``GPU:0`` 的1GB显存（其实可以理解为建立了一个显存大小为1GB的“虚拟GPU”）：
 
@@ -592,7 +811,7 @@ AutoGraph：将Python控制流转换为TensorFlow计算图
         gpus[0],
         [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
 
-.. hint:: TensorFlow 1.X 的 Graph Execution 下，可以在实例化新的session时传入 ``tf.compat.v1.ConfigPhoto`` 类来设置TensorFlow使用显存的策略。具体方式是实例化一个 ``tf.ConfigProto`` 类，设置参数，并在创建 ``tf.compat.v1.Session`` 时指定Config参数。以下代码通过 ``allow_growth`` 选项设置TensorFlow仅在需要时申请显存空间：
+.. hint:: TensorFlow 1.X 的 图执行模式 下，可以在实例化新的session时传入 ``tf.compat.v1.ConfigPhoto`` 类来设置TensorFlow使用显存的策略。具体方式是实例化一个 ``tf.ConfigProto`` 类，设置参数，并在创建 ``tf.compat.v1.Session`` 时指定Config参数。以下代码通过 ``allow_growth`` 选项设置TensorFlow仅在需要时申请显存空间：
 
     .. code-block:: python
 

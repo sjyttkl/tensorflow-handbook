@@ -42,7 +42,7 @@ TensorFlow 1+1
 
     import tensorflow as tf
 
-.. warning:: 本手册基于TensorFlow的Eager Execution模式。在TensorFlow 1.X版本中， **必须** 在导入TensorFlow库后调用 ``tf.enable_eager_execution()`` 函数以启用Eager Execution模式。在TensorFlow 2.0版本中，Eager Execution模式将成为默认模式，无需额外调用 ``tf.enable_eager_execution()`` 函数（不过若要关闭Eager Execution，则需调用 ``tf.compat.v1.disable_eager_execution()`` 函数）。
+.. warning:: 本手册基于TensorFlow的即时执行模式（Eager Execution）。在TensorFlow 1.X版本中， **必须** 在导入TensorFlow库后调用 ``tf.enable_eager_execution()`` 函数以启用即时执行模式。在 TensorFlow 2 中，即时执行模式将成为默认模式，无需额外调用 ``tf.enable_eager_execution()`` 函数（不过若要关闭即时执行模式，则需调用 ``tf.compat.v1.disable_eager_execution()`` 函数）。
 
 TensorFlow使用 **张量** （Tensor）作为数据的基本单位。TensorFlow的张量在概念上等同于多维数组，我们可以使用它来描述数学中的标量（0维数组）、向量（1维数组）、矩阵（2维数组）等各种量，示例如下：
 
@@ -72,10 +72,12 @@ TensorFlow里有大量的 **操作** （Operation），使得我们可以将已�
 
 可见，我们成功使用 ``tf.add()`` 操作计算出 :math:`\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} + \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix} = \begin{bmatrix} 6 & 8 \\ 10 & 12 \end{bmatrix}`，使用 ``tf.matmul()`` 操作计算出 :math:`\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \times \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix} = \begin{bmatrix} 19 & 22 \\43 & 50 \end{bmatrix}` 。
 
+.. _automatic_derivation:
+
 自动求导机制
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-在机器学习中，我们经常需要计算函数的导数。TensorFlow提供了强大的 **自动求导机制** 来计算导数。以下代码展示了如何使用 ``tf.GradientTape()`` 计算函数 :math:`y(x) = x^2` 在 :math:`x = 3` 时的导数：
+在机器学习中，我们经常需要计算函数的导数。TensorFlow提供了强大的 **自动求导机制** 来计算导数。在即时执行模式下，TensorFlow引入了 ``tf.GradientTape()`` 这个“求导记录器”来实现自动求导。以下代码展示了如何使用 ``tf.GradientTape()`` 计算函数 :math:`y(x) = x^2` 在 :math:`x = 3` 时的导数：
 
 .. literalinclude:: /_static/code/zh/basic/eager/grad.py  
     :lines: 1-7
@@ -86,7 +88,7 @@ TensorFlow里有大量的 **操作** （Operation），使得我们可以将已�
 
 这里 ``x`` 是一个初始化为3的 **变量** （Variable），使用 ``tf.Variable()`` 声明。与普通张量一样，变量同样具有形状、类型和值三种属性。使用变量需要有一个初始化过程，可以通过在 ``tf.Variable()`` 中指定 ``initial_value`` 参数来指定初始值。这里将变量 ``x`` 初始化为 ``3.`` [#f0]_。变量与普通张量的一个重要区别是其默认能够被TensorFlow的自动求导机制所求导，因此往往被用于定义机器学习模型的参数。
 
-``tf.GradientTape()`` 是一个自动求导的记录器，在其中的变量和计算步骤都会被自动记录。在上面的示例中，变量 ``x`` 和计算步骤 ``y = tf.square(x)`` 被自动记录，因此可以通过 ``y_grad = tape.gradient(y, x)`` 求张量 ``y`` 对变量 ``x`` 的导数。
+``tf.GradientTape()`` 是一个自动求导的记录器。只要进入了 ``with tf.GradientTape() as tape`` 的上下文环境，则在该环境中计算步骤都会被自动记录。比如在上面的示例中，计算步骤 ``y = tf.square(x)`` 即被自动记录。离开上下文环境后，记录将停止，但记录器 ``tape`` 依然可用，因此可以通过 ``y_grad = tape.gradient(y, x)`` 求张量 ``y`` 对变量 ``x`` 的导数。
 
 在机器学习中，更加常见的是对多元函数求偏导数，以及对向量或矩阵的求导。这些对于TensorFlow也不在话下。以下代码展示了如何使用 ``tf.GradientTape()`` 计算函数 :math:`L(w, b) = \|Xw + b - y\|^2` 在 :math:`w = (1, 2)^T, b = 1` 时分别对 :math:`w, b` 的偏导数。其中 :math:`X = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix},  y = \begin{bmatrix} 1 \\ 2\end{bmatrix}`。
 
@@ -171,7 +173,7 @@ NumPy下的线性回归
 TensorFlow下的线性回归
 -------------------------------------------
 
-TensorFlow的 **Eager Execution（动态图）模式** [#f4]_ 与上述NumPy的运行方式十分类似，然而提供了更快速的运算（GPU支持）、自动求导、优化器等一系列对深度学习非常重要的功能。以下展示了如何使用TensorFlow计算线性回归。可以注意到，程序的结构和前述NumPy的实现非常类似。这里，TensorFlow帮助我们做了两件重要的工作：
+TensorFlow的 **即时执行模式** [#f4]_ 与上述NumPy的运行方式十分类似，然而提供了更快速的运算（GPU支持）、自动求导、优化器等一系列对深度学习非常重要的功能。以下展示了如何使用TensorFlow计算线性回归。可以注意到，程序的结构和前述NumPy的实现非常类似。这里，TensorFlow帮助我们做了两件重要的工作：
 
 * 使用 ``tape.gradient(ys, xs)`` 自动计算梯度；
 * 使用 ``optimizer.apply_gradients(grads_and_vars)`` 自动更新模型参数。
@@ -181,11 +183,11 @@ TensorFlow的 **Eager Execution（动态图）模式** [#f4]_ 与上述NumPy的�
 
 在这里，我们使用了前文的方式计算了损失函数关于参数的偏导数。同时，使用 ``tf.keras.optimizers.SGD(learning_rate=1e-3)`` 声明了一个梯度下降 **优化器** （Optimizer），其学习率为1e-3。优化器可以帮助我们根据计算出的求导结果更新模型参数，从而最小化某个特定的损失函数，具体使用方式是调用其 ``apply_gradients()`` 方法。
 
-注意到这里，更新模型参数的方法 ``optimizer.apply_gradients()`` 需要提供参数 ``grads_and_vars``，即待更新的变量（如上述代码中的 ``variables`` ）及损失函数关于这些变量的偏导数（如上述代码中的 ``grads`` ）。具体而言，这里需要传入一个Python列表（List），列表中的每个元素是一个 ``（变量的偏导数，变量）`` 对。比如这里是 ``[(grad_a, a), (grad_b, b)]`` 。我们通过 ``grads = tape.gradient(loss, variables)`` 求出tape中记录的 ``loss`` 关于 ``variables = [a, b]`` 中每个变量的偏导数，也就是 ``grads = [grad_a, grad_b]``，再使用Python的 ``zip()`` 函数将 ``grads = [grad_a, grad_b]`` 和 ``variables = [a, b]`` 拼装在一起，就可以组合出所需的参数了。
+注意到这里，更新模型参数的方法 ``optimizer.apply_gradients()`` 需要提供参数 ``grads_and_vars``，即待更新的变量（如上述代码中的 ``variables`` ）及损失函数关于这些变量的偏导数（如上述代码中的 ``grads`` ）。具体而言，这里需要传入一个Python列表（List），列表中的每个元素是一个 ``（变量的偏导数，变量）`` 对。比如上例中需要传入的参数是 ``[(grad_a, a), (grad_b, b)]`` 。我们通过 ``grads = tape.gradient(loss, variables)`` 求出tape中记录的 ``loss`` 关于 ``variables = [a, b]`` 中每个变量的偏导数，也就是 ``grads = [grad_a, grad_b]``，再使用Python的 ``zip()`` 函数将 ``grads = [grad_a, grad_b]`` 和 ``variables = [a, b]`` 拼装在一起，就可以组合出所需的参数了。
 
 .. admonition:: Python的 ``zip()`` 函数
 
-    ``zip()`` 函数是Python的内置函数。用自然语言描述这个函数的功能很绕口，但如果举个例子就很容易理解了：如果 ``a = [1, 3, 5]``， ``b = [2, 4, 6]``，那么 ``zip(a, b) = [(1, 2), (3, 4), ..., (5, 6)]`` 。即“将可迭代的对象作为参数，将对象中对应的元素打包成一个个元组，然后返回由这些元组组成的列表”。在Python 3中， ``zip()`` 函数返回的是一个对象，需要调用 ``list()`` 来将对象转换成列表。
+    ``zip()`` 函数是Python的内置函数。用自然语言描述这个函数的功能很绕口，但如果举个例子就很容易理解了：如果 ``a = [1, 3, 5]``， ``b = [2, 4, 6]``，那么 ``zip(a, b) = [(1, 2), (3, 4), ..., (5, 6)]`` 。即“将可迭代的对象作为参数，将对象中对应的元素打包成一个个元组，然后返回由这些元组组成的列表”，和我们日常生活中拉上拉链（zip）的操作有异曲同工之妙。在Python 3中， ``zip()`` 函数返回的是一个 zip 对象，本质上是一个生成器，需要调用 ``list()`` 来将生成器转换成列表。
 
     .. figure:: /_static/image/basic/zip.jpg
         :width: 60%
@@ -204,7 +206,7 @@ TensorFlow的 **Eager Execution（动态图）模式** [#f4]_ 与上述NumPy的�
 .. [#f3] 主要可以参考 `Tensor Transformations <https://www.tensorflow.org/versions/r1.9/api_guides/python/array_ops>`_ 和 `Math <https://www.tensorflow.org/versions/r1.9/api_guides/python/math_ops>`_ 两个页面。可以注意到，TensorFlow的张量操作API在形式上和Python下流行的科学计算库NumPy非常类似，如果对后者有所了解的话可以快速上手。
 .. [#f1] 其实线性回归是有解析解的。这里使用梯度下降方法只是为了展示TensorFlow的运作方式。
 .. [#f2] 此处的损失函数为均方差 :math:`L(x) = \frac{1}{2} \sum_{i=1}^5 (ax_i + b - y_i)^2`。其关于参数 ``a`` 和 ``b`` 的偏导数为 :math:`\frac{\partial L}{\partial a} = \sum_{i=1}^5 (ax_i + b - y) x_i`，:math:`\frac{\partial L}{\partial b} = \sum_{i=1}^5 (ax_i + b - y)`
-.. [#f4] 与Eager Execution相对的是Graph Execution（静态图）模式，即TensorFlow在2018年3月的1.8版本发布之前所主要使用的模式。本手册以面向快速迭代开发的动态模式为主，但会在附录中介绍静态图模式的基本使用，供需要的读者查阅。
+.. [#f4] 与即时执行模式相对的是图执行模式（Graph Execution），即 TensorFlow 2 之前所主要使用的执行模式。本手册以面向快速迭代开发的即时执行模式为主，但会在 :doc:`附录 <../appendix/static>` 中介绍图执行模式的基本使用，供需要的读者查阅。
 
 ..  
     张量（变量、常量与占位符）

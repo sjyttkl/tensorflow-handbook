@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Common modules in TensorFlow &mdash; 简单粗暴TensorFlow 2.0 0.4 alpha 文档</title>
+  <title>Common Modules in TensorFlow &mdash; 简单粗暴 TensorFlow 2 0.4 alpha 文档</title>
   
 
   
@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
         <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../_static/js/tw_cn.js"></script>
         <script type="text/javascript" src="../../_static/js/pangu.min.js"></script>
         <script type="text/javascript" src="../../_static/js/custom.js"></script>
         <script type="text/javascript" src="../../_static/translations.js"></script>
@@ -38,7 +39,9 @@
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="index" title="索引" href="../../genindex.html" />
-    <link rel="search" title="搜索" href="../../search.html" /> 
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="TensorFlow Model Saving" href="../deployment/export.html" />
+    <link rel="prev" title="Model Construction and Training" href="models.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -52,7 +55,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> 简单粗暴TensorFlow 2.0
+            <a href="../../index.html" class="icon icon-home"> 简单粗暴 TensorFlow 2
           
 
           
@@ -119,13 +122,77 @@
 </ul>
 <p class="caption"><span class="caption-text">附录</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../zh/appendix/static.html">图模型下的TensorFlow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../zh/appendix/docker.html">使用Docker部署TensorFlow环境</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../zh/appendix/cloud.html">在云端使用TensorFlow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../zh/appendix/jupyterlab.html">部署自己的交互式Python开发环境JupyterLab</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../zh/appendix/optimization.html">TensorFlow性能优化</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../zh/appendix/recommended_books.html">参考资料与推荐阅读</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../zh/appendix/terms.html">术语中英对照表</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Preface</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">TensorFlow Overview</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Basic</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and Environment Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">TensorFlow Basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Model Construction and Training</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Common Modules in TensorFlow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#variables-saving-and-restore-tf-train-checkpoint">Variables saving and restore: <code class="docutils literal notranslate"><span class="pre">tf.train.Checkpoint</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization-of-training-process-tensorboard">Visualization of training process: TensorBoard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dataset-construction-and-preprocessing-tf-data">Dataset construction and preprocessing: <code class="docutils literal notranslate"><span class="pre">tf.data</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dataset-construction">Dataset construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dataset-preprocessing">Dataset preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fetching-element-from-datasets">Fetching element from datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-cats-vs-dogs-image-classification">Example: cats_vs_dogs image classification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#graph-execution-mode-tf-function">Graph Execution mode: <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> *</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage-of-tf-function">Basic usage of <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#internal-mechanism-of-tf-function">Internal mechanism of <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#autograph-converting-python-control-flows-into-tensorflow-graphs">Autograph: Converting Python control flows into TensorFlow graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-traditional-tf-session">Using traditional <code class="docutils literal notranslate"><span class="pre">tf.Session</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-dynamic-array-tf-tensorarray">TensorFlow Dynamic Array: <code class="docutils literal notranslate"><span class="pre">tf.TensorArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-and-dispatching-gpus-tf-config">Using and dispatching GPUs: <code class="docutils literal notranslate"><span class="pre">tf.config</span></code> *</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#indicating-gpus-for-current-program">Indicating GPUs for current program</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-gpu-memory-usage-policy">Setting GPU memory usage policy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulating-a-multi-gpu-environment-with-a-single-gpu">Simulating a multi-GPU environment with a single GPU</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Deployment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deployment/export.html">TensorFlow Model Saving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deployment/serving.html">TensorFlow Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deployment/lite.html">TensorFlow Lite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deployment/javascript.html">TensorFlow in JavaScript</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Large-scale Training</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/distributed.html">Distributed Training with TensorFlow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/tpu.html">Training TensorFlow models with TPU</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extensions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/tfhub.html">TensorFlow Hub: Model Reuse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/tfds.html">TensorFlow Datasets: Ready-to-use Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/swift.html">Swift for TensorFlow (S4TF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/julia.html">TensorFlow in Julia</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/static.html">TensorFlow Under Graph Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/docker.html">Using Docker to deploy TensorFlow environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/cloud.html">Using TensorFlow on cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/jupyterlab.html">Deploying Your Own Interactive Python Development Environment, JupyterLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/optimization.html">TensorFlow Performance Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/recommended_books.html">References and Recommendations for Further Reading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/terms.html">Terminology comparison table between Chinese and English</a></li>
 </ul>
 
             
@@ -140,7 +207,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">简单粗暴TensorFlow 2.0</a>
+          <a href="../../index.html">简单粗暴 TensorFlow 2</a>
         
       </nav>
 
@@ -171,7 +238,7 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
-      <li>Common modules in TensorFlow</li>
+      <li>Common Modules in TensorFlow</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -191,7 +258,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="common-modules-in-tensorflow">
-<h1>Common modules in TensorFlow<a class="headerlink" href="#common-modules-in-tensorflow" title="永久链接至标题">¶</a></h1>
+<h1>Common Modules in TensorFlow<a class="headerlink" href="#common-modules-in-tensorflow" title="永久链接至标题">¶</a></h1>
 <div class="admonition- admonition">
 <p class="admonition-title">前置知识</p>
 <ul class="simple">
@@ -200,8 +267,8 @@
 <li><p><a class="reference external" href="https://www.runoob.com/python3/python3-iterator-generator.html">Python的迭代器</a></p></li>
 </ul>
 </div>
-<div class="section" id="variables-saving-and-recovery-tf-train-checkpoint">
-<h2>Variables saving and recovery: <code class="docutils literal notranslate"><span class="pre">tf.train.Checkpoint</span></code><a class="headerlink" href="#variables-saving-and-recovery-tf-train-checkpoint" title="永久链接至标题">¶</a></h2>
+<div class="section" id="variables-saving-and-restore-tf-train-checkpoint">
+<h2>Variables saving and restore: <code class="docutils literal notranslate"><span class="pre">tf.train.Checkpoint</span></code><a class="headerlink" href="#variables-saving-and-restore-tf-train-checkpoint" title="永久链接至标题">¶</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">警告</p>
 <p>Checkpoint只保存模型的参数，不保存模型的计算过程，因此一般用于在具有模型源代码的时候恢复之前训练好的模型参数。如果需要导出模型（无需源代码也能运行模型），请参考 <a class="reference internal" href="../../zh/deployment/export.html#savedmodel"><span class="std std-ref">“部署”章节中的SavedModel</span></a> 。</p>
@@ -414,32 +481,36 @@
 <span class="kn">from</span> <span class="nn">zh.model.mnist.mlp</span> <span class="k">import</span> <span class="n">MLP</span>
 <span class="kn">from</span> <span class="nn">zh.model.utils</span> <span class="k">import</span> <span class="n">MNISTLoader</span>
 
-<span class="n">num_batches</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">num_batches</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">log_dir</span> <span class="o">=</span> <span class="s1">&#39;tensorboard&#39;</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">()</span>
 <span class="n">data_loader</span> <span class="o">=</span> <span class="n">MNISTLoader</span><span class="p">()</span>
-<span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
-<span class="hll"><span class="n">summary_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">create_file_writer</span><span class="p">(</span><span class="s1">&#39;./tensorboard&#39;</span><span class="p">)</span>     <span class="c1"># 实例化记录器</span>
-</span><span class="k">for</span> <span class="n">batch_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
+<span class="hll"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+</span><span class="n">summary_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">create_file_writer</span><span class="p">(</span><span class="n">log_dir</span><span class="p">)</span>     <span class="c1"># 实例化记录器</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">trace_on</span><span class="p">(</span><span class="n">profiler</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># 开启Trace（可选）</span>
+<span class="k">for</span> <span class="n">batch_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
     <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
         <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">sparse_categorical_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span>
-        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;batch </span><span class="si">%d</span><span class="s2">: loss </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">batch_index</span><span class="p">,</span> <span class="n">loss</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span>
-<span class="hll">        <span class="k">with</span> <span class="n">summary_writer</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>                           <span class="c1"># 指定记录器</span>
-</span><span class="hll">            <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">batch_index</span><span class="p">)</span>       <span class="c1"># 将当前损失函数的值写入记录器</span>
-</span>    <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="hll">        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+</span><span class="hll">        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;batch </span><span class="si">%d</span><span class="s2">: loss </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">batch_index</span><span class="p">,</span> <span class="n">loss</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span>
+</span>        <span class="k">with</span> <span class="n">summary_writer</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>                           <span class="c1"># 指定记录器</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">batch_index</span><span class="p">)</span>       <span class="c1"># 将当前损失函数的值写入记录器</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
     <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="o">=</span><span class="nb">zip</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
+<span class="k">with</span> <span class="n">summary_writer</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">trace_export</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model_trace&quot;</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">profiler_outdir</span><span class="o">=</span><span class="n">log_dir</span><span class="p">)</span>    <span class="c1"># 保存Trace信息到文件（可选）</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="datasets-construction-and-preprocessing-tf-data">
-<span id="tfdata"></span><h2>Datasets construction and preprocessing: <code class="docutils literal notranslate"><span class="pre">tf.data</span></code><a class="headerlink" href="#datasets-construction-and-preprocessing-tf-data" title="永久链接至标题">¶</a></h2>
+<div class="section" id="dataset-construction-and-preprocessing-tf-data">
+<span id="tfdata"></span><h2>Dataset construction and preprocessing: <code class="docutils literal notranslate"><span class="pre">tf.data</span></code><a class="headerlink" href="#dataset-construction-and-preprocessing-tf-data" title="永久链接至标题">¶</a></h2>
 <p>很多时候，我们希望使用自己的数据集来训练模型。然而，面对一堆格式不一的原始数据文件，将其预处理并读入程序的过程往往十分繁琐，甚至比模型的设计还要耗费精力。比如，为了读入一批图像文件，我们可能需要纠结于python的各种图像处理包（比如 <code class="docutils literal notranslate"><span class="pre">pillow</span></code> ），自己设计Batch的生成方式，最后还可能在运行的效率上不尽如人意。为此，TensorFlow提供了 <code class="docutils literal notranslate"><span class="pre">tf.data</span></code> 这一模块，包括了一套灵活的数据集构建API，能够帮助我们快速、高效地构建数据输入的流水线，尤其适用于数据量巨大的场景。</p>
-<div class="section" id="dataset-objects-construction">
-<h3>Dataset objects construction<a class="headerlink" href="#dataset-objects-construction" title="永久链接至标题">¶</a></h3>
+<div class="section" id="dataset-construction">
+<h3>Dataset construction<a class="headerlink" href="#dataset-construction" title="永久链接至标题">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">tf.data</span></code> 的核心是 <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> 类，提供了对数据集的高层封装。<code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> 由一系列的可迭代访问的元素（element）组成，每个元素包含一个或多个张量。比如说，对于一个由图像组成的数据集，每个元素可以是一个形状为 <code class="docutils literal notranslate"><span class="pre">长×宽×通道数</span></code> 的图片张量，也可以是由图片张量和图片标签张量组成的元组（Tuple）。</p>
 <p>最基础的建立 <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> 的方法是使用 <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset.from_tensor_slices()</span></code> ，适用于数据量较小（能够整个装进内存）的情况。具体而言，如果我们的数据集中的所有元素通过张量的第0维，拼接成一个大的张量（例如，前节的MNIST数据集的训练集即为一个 <code class="docutils literal notranslate"><span class="pre">[60000,</span> <span class="pre">28,</span> <span class="pre">28,</span> <span class="pre">1]</span></code> 的张量，表示了60000张28*28的单通道灰度图像），那么我们提供一个这样的张量或者第0维大小相同的多个张量作为输入，即可按张量的第0维展开来构建数据集，数据集的元素数量为张量第0位的大小。具体示例如下：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -497,8 +568,8 @@
 <p>即可快速载入MNIST数据集。</p>
 </div>
 </div>
-<div class="section" id="dataset-objects-preprocessing">
-<h3>Dataset objects preprocessing<a class="headerlink" href="#dataset-objects-preprocessing" title="永久链接至标题">¶</a></h3>
+<div class="section" id="dataset-preprocessing">
+<h3>Dataset preprocessing<a class="headerlink" href="#dataset-preprocessing" title="永久链接至标题">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> 类为我们提供了多种数据集预处理方法。最常用的如：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Dataset.map(f)</span></code> ：对数据集中的每个元素应用函数 <code class="docutils literal notranslate"><span class="pre">f</span></code> ，得到一个新的数据集（这部分往往结合 <code class="docutils literal notranslate"><span class="pre">tf.io</span></code> 进行读写和解码文件， <code class="docutils literal notranslate"><span class="pre">tf.image</span></code> 进行图像处理）；</p></li>
@@ -577,8 +648,8 @@
 </ul>
 </div>
 </div>
-<div class="section" id="dataset-elements-collection-and-usage">
-<h3>Dataset elements collection and usage<a class="headerlink" href="#dataset-elements-collection-and-usage" title="永久链接至标题">¶</a></h3>
+<div class="section" id="fetching-element-from-datasets">
+<h3>Fetching element from datasets<a class="headerlink" href="#fetching-element-from-datasets" title="永久链接至标题">¶</a></h3>
 <p>构建好数据并预处理后，我们需要从其中迭代获取数据以用于训练。<code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> 是一个Python的可迭代对象，因此可以使用For循环迭代获取数据，即：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="o">...</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">...</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
@@ -602,8 +673,8 @@
 </div>
 <p>由于已经通过 <code class="docutils literal notranslate"><span class="pre">Dataset.batch()</span></code> 方法划分了数据集的批次，所以这里也无需提供批次的大小。</p>
 </div>
-<div class="section" id="an-example-cats-vs-dogs-image-classification">
-<span id="cats-vs-dogs"></span><h3>An example: cats_vs_dogs image classification<a class="headerlink" href="#an-example-cats-vs-dogs-image-classification" title="永久链接至标题">¶</a></h3>
+<div class="section" id="example-cats-vs-dogs-image-classification">
+<span id="cats-vs-dogs"></span><h3>Example: cats_vs_dogs image classification<a class="headerlink" href="#example-cats-vs-dogs-image-classification" title="永久链接至标题">¶</a></h3>
 <p>以下代码以猫狗图片二分类任务为示例，展示了使用 <code class="docutils literal notranslate"><span class="pre">tf.data</span></code> 结合 <code class="docutils literal notranslate"><span class="pre">tf.io</span></code> 和 <code class="docutils literal notranslate"><span class="pre">tf.image</span></code> 建立 <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> 数据集，并进行训练和测试的完整过程。数据集可至 <a class="reference external" href="https://www.floydhub.com/fastai/datasets/cats-vs-dogs">这里</a> 下载。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -618,8 +689,8 @@
 <span class="n">test_dogs_dir</span> <span class="o">=</span> <span class="n">data_dir</span> <span class="o">+</span> <span class="s1">&#39;/valid/dogs/&#39;</span>
 
 <span class="k">def</span> <span class="nf">_decode_and_resize</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
-<span class="hll">    <span class="n">image_string</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-</span><span class="hll">    <span class="n">image_decoded</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_jpeg</span><span class="p">(</span><span class="n">image_string</span><span class="p">)</span>
+<span class="hll">    <span class="n">image_string</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>            <span class="c1"># 读取原始文件</span>
+</span><span class="hll">    <span class="n">image_decoded</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_jpeg</span><span class="p">(</span><span class="n">image_string</span><span class="p">)</span>  <span class="c1"># 解码JPEG图片</span>
 </span><span class="hll">    <span class="n">image_resized</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image_decoded</span><span class="p">,</span> <span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">])</span> <span class="o">/</span> <span class="mf">255.0</span>
 </span><span class="hll">    <span class="k">return</span> <span class="n">image_resized</span><span class="p">,</span> <span class="n">label</span>
 </span>
@@ -634,11 +705,14 @@
         <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="hll">    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">train_filenames</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">))</span>
-</span><span class="hll">    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_decode_and_resize</span><span class="p">)</span>
+</span><span class="hll">    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+</span><span class="hll">        <span class="n">map_func</span><span class="o">=</span><span class="n">_decode_and_resize</span><span class="p">,</span> 
+</span><span class="hll">        <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
 </span><span class="hll">    <span class="c1"># 取出前buffer_size个数据放入buffer，并从其中随机采样，采样后的数据用后续数据替换</span>
-</span><span class="hll">    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">23000</span><span class="p">)</span>    
-</span><span class="hll">    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
-</span>
+</span>    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="o">=</span><span class="mi">23000</span><span class="p">)</span>    
+    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+
     <span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">([</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(),</span>
@@ -652,14 +726,14 @@
     <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
         <span class="n">optimizer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">),</span>
         <span class="n">loss</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">sparse_categorical_crossentropy</span><span class="p">,</span>
-        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">sparse_categorical_accuracy</span><span class="p">]</span>
-    <span class="p">)</span>
-
-<span class="hll">    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">)</span>
+<span class="hll">        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">sparse_categorical_accuracy</span><span class="p">]</span>
 </span></pre></div>
 </div>
 <p>使用以下代码进行测试：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># 构建测试数据集</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">)</span>
+
+    <span class="c1"># 构建测试数据集</span>
     <span class="n">test_cat_filenames</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([</span><span class="n">test_cats_dir</span> <span class="o">+</span> <span class="n">filename</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">test_cats_dir</span><span class="p">)])</span>
     <span class="n">test_dog_filenames</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([</span><span class="n">test_dogs_dir</span> <span class="o">+</span> <span class="n">filename</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">test_dogs_dir</span><span class="p">)])</span>
     <span class="n">test_filenames</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_cat_filenames</span><span class="p">,</span> <span class="n">test_dog_filenames</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
@@ -671,9 +745,6 @@
     <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">test_filenames</span><span class="p">,</span> <span class="n">test_labels</span><span class="p">))</span>
     <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">test_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_decode_and_resize</span><span class="p">)</span>
     <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">test_dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metrics_names</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -692,37 +763,36 @@
 <span class="kn">from</span> <span class="nn">zh.model.mnist.cnn</span> <span class="k">import</span> <span class="n">CNN</span>
 <span class="kn">from</span> <span class="nn">zh.model.utils</span> <span class="k">import</span> <span class="n">MNISTLoader</span>
 
-<span class="n">num_batches</span> <span class="o">=</span> <span class="mi">400</span>
+<span class="n">num_batches</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.001</span>
 <span class="n">data_loader</span> <span class="o">=</span> <span class="n">MNISTLoader</span><span class="p">()</span>
-
-<span class="hll"><span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
-</span><span class="k">def</span> <span class="nf">train_one_step</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>    
+<span class="n">model</span> <span class="o">=</span> <span class="n">CNN</span><span class="p">()</span>
+<span class="hll"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+</span>
+<span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span> <span class="nf">train_one_step</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>    
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
         <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">sparse_categorical_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span>
-        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
-        <span class="c1"># 注意这里使用了TensorFlow内置的tf.print()。@tf.function不支持Python内置的print方法</span>
-<span class="hll">        <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>  
-</span>    <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="hll">        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+</span>        <span class="c1"># 注意这里使用了TensorFlow内置的tf.print()。@tf.function不支持Python内置的print方法</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>    
     <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="n">grads_and_vars</span><span class="o">=</span><span class="nb">zip</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">CNN</span><span class="p">()</span>
-    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
-    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">batch_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
-        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
-        <span class="n">train_one_step</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>      
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">batch_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">train_one_step</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>运行400个Batch进行测试，加入 <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 的程序耗时35.5秒，未加入 <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 的纯Eager Execution程序耗时43.8秒。可见 <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 带来了一定的性能提升。一般而言，当模型由较多小的操作组成的时候， <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 带来的提升效果较大。而当模型的操作数量较少，但单一操作均很耗时的时候，则 <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 带来的性能提升不会太大。</p>
 </div>
-<div class="section" id="instrinsic-mechanism-of-tf-function">
-<h3>Instrinsic mechanism of <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code><a class="headerlink" href="#instrinsic-mechanism-of-tf-function" title="永久链接至标题">¶</a></h3>
+<div class="section" id="internal-mechanism-of-tf-function">
+<h3>Internal mechanism of <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code><a class="headerlink" href="#internal-mechanism-of-tf-function" title="永久链接至标题">¶</a></h3>
 <p>当被 <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 修饰的函数第一次被调用的时候，进行以下操作：</p>
 <ul class="simple">
 <li><p>在Eager Execution模式关闭的环境下，函数内的代码依次运行。也就是说，每个 <code class="docutils literal notranslate"><span class="pre">tf.</span></code> 方法都只是定义了计算节点，而并没有进行任何实质的计算。这与TensorFlow 1.X的Graph Execution是一致的；</p></li>
@@ -813,8 +883,8 @@
 </div>
 <p>正如同正文里的例子一样，你可以在被 <code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 修饰的函数里调用 <code class="docutils literal notranslate"><span class="pre">tf.Variable</span></code> 、 <code class="docutils literal notranslate"><span class="pre">tf.keras.optimizers</span></code> 、 <code class="docutils literal notranslate"><span class="pre">tf.keras.Model</span></code> 等包含有变量的数据结构。一旦被调用，这些结构将作为隐含的参数提供给函数。当这些结构内的值在函数内被修改时，在函数外也同样生效。</p>
 </div>
-<div class="section" id="converting-python-control-flows-into-tensorflow-graphs">
-<h3>Converting Python control flows into TensorFlow graphs<a class="headerlink" href="#converting-python-control-flows-into-tensorflow-graphs" title="永久链接至标题">¶</a></h3>
+<div class="section" id="autograph-converting-python-control-flows-into-tensorflow-graphs">
+<h3>Autograph: Converting Python control flows into TensorFlow graphs<a class="headerlink" href="#autograph-converting-python-control-flows-into-tensorflow-graphs" title="永久链接至标题">¶</a></h3>
 <p>前面提到，<code class="docutils literal notranslate"><span class="pre">&#64;tf.function</span></code> 使用名为AutoGraph的机制将函数中的Python控制流语句转换成TensorFlow计算图中的对应节点。以下是一个示例，使用 <code class="docutils literal notranslate"><span class="pre">tf.autograph</span></code> 模块的低层API <code class="docutils literal notranslate"><span class="pre">tf.autograph.to_code</span></code> 将函数 <code class="docutils literal notranslate"><span class="pre">square_if_positive</span></code> 转换成TensorFlow计算图：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -907,7 +977,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test accuracy: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sparse_categorical_accuracy</span><span class="o">.</span><span class="n">result</span><span class="p">()))</span>
 </pre></div>
 </div>
-<p>关于Graph Execution的更多内容可参见 <a class="reference internal" href="../../zh/appendix/static.html"><span class="doc">图模型下的TensorFlow</span></a>。</p>
+<p>关于Graph Execution的更多内容可参见 <span class="xref std std-doc">/zh/appendix/static</span>。</p>
 </div>
 </div>
 <div class="section" id="tensorflow-dynamic-array-tf-tensorarray">
@@ -1026,7 +1096,7 @@
      <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">VirtualDeviceConfiguration</span><span class="p">(</span><span class="n">memory_limit</span><span class="o">=</span><span class="mi">2048</span><span class="p">)])</span>
 </pre></div>
 </div>
-<p>我们在 <a class="reference internal" href="../appendix/distributed.html#multi-gpu"><span class="std std-ref">单机多卡训练</span></a> 的代码前加入以上代码，即可让原本为多GPU设计的代码在单GPU环境下运行。当输出设备数量时，程序会输出：</p>
+<p>我们在 <a class="reference internal" href="../../zh/appendix/distributed.html#multi-gpu"><span class="std std-ref">单机多卡训练</span></a> 的代码前加入以上代码，即可让原本为多GPU设计的代码在单GPU环境下运行。当输出设备数量时，程序会输出：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Number</span> <span class="n">of</span> <span class="n">devices</span><span class="p">:</span> <span class="mi">2</span>
 </pre></div>
 </div>
@@ -1039,6 +1109,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../deployment/export.html" class="btn btn-neutral float-right" title="TensorFlow Model Saving" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="models.html" class="btn btn-neutral float-left" title="Model Construction and Training" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

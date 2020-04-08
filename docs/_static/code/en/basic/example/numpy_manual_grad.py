@@ -11,7 +11,7 @@ a, b = 0, 0
 num_epoch = 10000
 learning_rate = 1e-3
 for e in range(num_epoch):
-    # Calculate the gradient of the loss function with respect to arguments (model parameters) manually.
+    # Compute the gradient of the loss function with respect to independent variables (model parameters) manually.
     y_pred = a * X + b
     grad_a, grad_b = (y_pred - y).dot(X), (y_pred - y).sum()
 

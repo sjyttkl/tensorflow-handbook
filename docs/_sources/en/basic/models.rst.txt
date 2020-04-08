@@ -86,7 +86,7 @@ Keras 模型以类的形式呈现，我们可以通过继承 ``tf.keras.Model`` 
 
 .. _mlp:
 
-A basic example: Multiple layer perceptron (MLP)
+A basic example: Multilayer Perceptron (MLP)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 我们从编写一个最简单的 `多层感知机 <https://zh.wikipedia.org/wiki/%E5%A4%9A%E5%B1%82%E6%84%9F%E7%9F%A5%E5%99%A8>`_ （Multilayer Perceptron, MLP），或者说 “多层全连接神经网络” 开始，介绍 TensorFlow 的模型编写方式。在这一部分，我们依次进行以下步骤：
@@ -618,7 +618,7 @@ Custom layers, losses and evaluations*
 
 .. _custom_layer:
 
-自定义层
+Custom layers
 -------------------------------------------
 
 自定义层需要继承 ``tf.keras.layers.Layer`` 类，并重写 ``__init__`` 、 ``build`` 和 ``call`` 三个方法，如下所示：

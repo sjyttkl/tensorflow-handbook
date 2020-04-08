@@ -1,5 +1,5 @@
-TensorFlow Distributed Training
-===============================
+Distributed Training with TensorFlow
+====================================
 
 ..
     https://www.tensorflow.org/beta/guide/distribute_strategy
@@ -8,7 +8,7 @@ TensorFlow Distributed Training
 
 .. _multi_gpu:
 
-Training on a single machine with multiple cards: ``MirroredStrategy``
+Training on a single machine with multiple GPUs: ``MirroredStrategy``
 ----------------------------------------------------------------------
 
 ..

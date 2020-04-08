@@ -32,7 +32,7 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 # imgmath or mathjax
-extensions = [ 'sphinx.ext.imgmath', 'sphinx.ext.intersphinx', 'sphinx_markdown_builder' ]
+extensions = [ 'sphinx.ext.imgmath', 'sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = '简单粗暴TensorFlow 2.0'
+project = '简单粗暴 TensorFlow 2'
 copyright = '2018-2019, Xihan Li（雪麒）'
 author = 'Xihan Li（雪麒）'
 
@@ -115,9 +115,10 @@ html_static_path = ['_static']
 # }
 
 def setup(app):
-    app.add_stylesheet( "css/custom.css" )
+    app.add_stylesheet( "css/custom.css" )      
+    app.add_javascript( "js/tw_cn.js" )  
     app.add_javascript( "js/pangu.min.js" )    
-    app.add_javascript( "js/custom.js" )    
+    app.add_javascript( "js/custom.js" )  
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -152,7 +153,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'TensorFlow-cn.tex', '简单粗暴TensorFlow 2.0',
+    (master_doc, 'TensorFlow-cn.tex', '简单粗暴 TensorFlow 2',
      author, 'manual'),
 ]
 
@@ -162,7 +163,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'tensorflow', '简单粗暴TensorFlow 2.0',
+    (master_doc, 'tensorflow', '简单粗暴 TensorFlow 2',
      [author], 1)
 ]
 
@@ -173,8 +174,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'TensorFlow', '简单粗暴TensorFlow 2.0',
-     author, 'TensorFlow', '简单粗暴TensorFlow 2.0',
+    (master_doc, 'TensorFlow', '简单粗暴 TensorFlow 2',
+     author, 'TensorFlow', '简单粗暴 TensorFlow 2',
      'Miscellaneous'),
 ]
 
